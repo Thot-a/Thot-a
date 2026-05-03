@@ -32,7 +32,6 @@ int      atrHandle;
 double   startDayEquity;
 datetime lastDayTime;
 datetime lastBarTime;
-bool     tradingAllowed;
 
 //+------------------------------------------------------------------+
 //| Expert initialization                                             |
@@ -41,7 +40,8 @@ int OnInit()
 {
    trade.SetExpertMagicNumber(MagicNumber);
    trade.SetDeviationInPoints(20);
-   trade.SetTypeFilling(ORDER_FILLING_IOC);
+   // ORDER_FILLING_RETURN is required by most ECN/STP brokers for XAUUSD
+   trade.SetTypeFilling(ORDER_FILLING_RETURN);
 
    emaHandle = iMA(_Symbol, PERIOD_M5, EMAPeriod, 0, MODE_EMA, PRICE_CLOSE);
    atrHandle = iATR(_Symbol, PERIOD_M5, 14);
@@ -54,8 +54,7 @@ int OnInit()
 
    startDayEquity = AccountInfoDouble(ACCOUNT_EQUITY);
    lastDayTime    = TimeCurrent();
-   tradingAllowed = true;
-   lastBarTime    = 0;
+   lastBarTime = 0;
 
    Print("EA Initialized | Symbol: ", _Symbol,
          " | Magic: ", MagicNumber,
@@ -322,7 +321,6 @@ void UpdateDailyEquity()
    {
       startDayEquity = AccountInfoDouble(ACCOUNT_EQUITY);
       lastDayTime    = TimeCurrent();
-      tradingAllowed = true;
       Print("NEW DAY | Start equity reset to: ", startDayEquity);
    }
 }
