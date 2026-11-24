@@ -150,6 +150,21 @@ describe('deterministicPlan', () => {
     expect(new Set(p1.map((i) => i.food_item_id)).size).toBe(3);
   });
 
+  it('without body data, does not pick very light items for main meals', () => {
+    const light = food('drink', { meal_types: ['breakfast', 'lunch', 'dinner'], kcal: 120, price_min_thb: 10, price_max_thb: 15 });
+    const cands2 = [...cands, light];
+    const p = deterministicPlan(cands2, ctx({ targets: null }));
+    expect(p.map((i) => i.food_item_id)).not.toContain('drink');
+  });
+
+  it('never serves a side dish or drink alone as a main meal, even when cheapest', () => {
+    const rice = food('rice', { category: 'side_dish', kcal: 200, price_min_thb: 10, price_max_thb: 15 });
+    const milk = food('milk', { category: 'drink', meal_types: ['breakfast'], kcal: 130, price_min_thb: 12, price_max_thb: 18 });
+    const p = deterministicPlan([...cands, rice, milk], ctx({ budgetThb: 100, targets: null }));
+    expect(p.map((i) => i.food_item_id)).not.toContain('rice');
+    expect(p.map((i) => i.food_item_id)).not.toContain('milk');
+  });
+
   it('downgrades to cheaper items when budget is tight', () => {
     const p = deterministicPlan(cands, ctx({ budgetThb: 110 }));
     expect(computeTotals(p, cands).priceMid).toBeLessThanOrEqual(130);

@@ -76,9 +76,19 @@ export function filterCandidates(
 
 export const MIN_OPTIONS_PER_MEAL = 2;
 
+/** Categories that are not a meal on their own (fine as a snack). */
+const NOT_A_MAIN_MEAL = new Set(['side_dish', 'drink', 'fruit', 'snack']);
+
+export function canServeAs(f: Pick<FoodCandidate, 'category' | 'meal_types'>, meal: MealType): boolean {
+  return f.meal_types.includes(meal) && (meal === 'snack' || !NOT_A_MAIN_MEAL.has(f.category));
+}
+
+/** General reference energy intake (Thai GDA labelling basis). Planning heuristic only, not a personal target. */
+export const REFERENCE_DAILY_KCAL = 2000;
+
 /** Returns the meal types that lack enough options. Empty = OK. */
 export function missingMealCoverage(candidates: readonly FoodCandidate[], mealTypes: readonly MealType[]): MealType[] {
-  return mealTypes.filter((m) => candidates.filter((c) => c.meal_types.includes(m)).length < MIN_OPTIONS_PER_MEAL);
+  return mealTypes.filter((m) => candidates.filter((c) => canServeAs(c, m)).length < MIN_OPTIONS_PER_MEAL);
 }
 
 // ---------------------------------------------------------------------------
@@ -244,9 +254,9 @@ export function seededUnit(seed: string): number {
   return (h >>> 0) / 0x100000000;
 }
 
-function scoreFood(f: FoodCandidate, meal: MealType, ctx: PlanContext, kcalTarget: number | null, priceTarget: number): number {
+function scoreFood(f: FoodCandidate, meal: MealType, ctx: PlanContext, kcalTarget: number, priceTarget: number): number {
   let score = 0;
-  if (kcalTarget) score -= Math.abs(f.kcal - kcalTarget) / Math.max(kcalTarget, 1); // closeness to energy share
+  score -= Math.abs(f.kcal - kcalTarget) / Math.max(kcalTarget, 1); // closeness to energy share
   score -= Math.max(0, priceEstimate(f) - priceTarget) / Math.max(priceTarget, 1); // penalise over-budget
   score += f.tags.filter((t) => ctx.likedTags.includes(t)).length * 0.15;
   if (ctx.goal === 'muscle_support') score += (f.protein_g / Math.max(f.kcal, 1)) * 2;
@@ -257,14 +267,16 @@ function scoreFood(f: FoodCandidate, meal: MealType, ctx: PlanContext, kcalTarge
 
 export function deterministicPlan(candidates: readonly FoodCandidate[], ctx: PlanContext): PlannedItem[] {
   const shares = mealShares(ctx.mealTypes);
-  const kcalMid = ctx.targets ? (ctx.targets.kcalMin + ctx.targets.kcalMax) / 2 : null;
+  // Without body data, aim for the general 2,000 kcal reference used on Thai nutrition labels
+  // so plans don't collapse to very light items (e.g. a drink as a whole meal).
+  const kcalMid = ctx.targets ? (ctx.targets.kcalMin + ctx.targets.kcalMax) / 2 : REFERENCE_DAILY_KCAL;
   const used = new Set<string>();
   const items: PlannedItem[] = [];
 
   for (const meal of ctx.mealTypes) {
-    const options = candidates.filter((c) => c.meal_types.includes(meal) && !used.has(c.id));
+    const options = candidates.filter((c) => canServeAs(c, meal) && !used.has(c.id));
     if (!options.length) continue;
-    const kcalTarget = kcalMid ? kcalMid * shares[meal] : null;
+    const kcalTarget = kcalMid * shares[meal];
     const priceTarget = ctx.budgetThb * shares[meal];
     const best = [...options].sort(
       (a, b) => scoreFood(b, meal, ctx, kcalTarget, priceTarget) - scoreFood(a, meal, ctx, kcalTarget, priceTarget),
@@ -283,7 +295,7 @@ export function deterministicPlan(candidates: readonly FoodCandidate[], ctx: Pla
     let replaced = false;
     for (const it of byPrice) {
       const cheaper = candidates
-        .filter((c) => c.meal_types.includes(it.meal_type) && c.id !== it.food_item_id && !items.some((x) => x.food_item_id === c.id))
+        .filter((c) => canServeAs(c, it.meal_type) && c.id !== it.food_item_id && !items.some((x) => x.food_item_id === c.id))
         .sort((a, b) => priceEstimate(a) - priceEstimate(b))[0];
       if (cheaper && priceEstimate(cheaper) < priceOf(it, candidates)) {
         it.food_item_id = cheaper.id;
@@ -322,7 +334,7 @@ export function pickSwap(
 ): FoodCandidate | null {
   const cur = candidates.find((c) => c.id === current.food_item_id);
   let pool = candidates.filter(
-    (c) => c.meal_types.includes(current.meal_type) && c.id !== current.food_item_id && !otherFoodIds.includes(c.id),
+    (c) => canServeAs(c, current.meal_type) && c.id !== current.food_item_id && !otherFoodIds.includes(c.id),
   );
   if (cur) {
     if (reason === 'cheaper') pool = pool.filter((c) => priceEstimate(c) < priceEstimate(cur));

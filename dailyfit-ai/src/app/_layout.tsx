@@ -12,13 +12,16 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { DemoBadge } from '@/components/DemoBadge';
 import { AppText, Button, ErrorState, LoadingState, Screen } from '@/components/ui';
-import { colors } from '@/constants/theme';
+import { colors, fonts } from '@/constants/theme';
 import { useConsents, useProfile } from '@/hooks/useProfile';
+import { DEMO_MODE } from '@/lib/demo';
 import { envResult } from '@/lib/env';
 import { toAppError } from '@/lib/errors';
 import { queryClient } from '@/lib/queryClient';
 import { AuthProvider, useAuth } from '@/providers/AuthProvider';
+import { EntryContext } from '@/providers/EntryContext';
 import { signOut } from '@/services/auth';
 import { hasRequiredConsents } from '@/services/consents';
 
@@ -39,7 +42,8 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <StatusBar style="dark" />
-          {envResult.ok ? <RootNavigator /> : <NotConfigured problems={envResult.problems} />}
+          {DEMO_MODE || envResult.ok ? <RootNavigator /> : <NotConfigured problems={envResult.problems} />}
+          <DemoBadge />
         </AuthProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
@@ -47,8 +51,8 @@ export default function RootLayout() {
 }
 
 function RootNavigator() {
-  const { session, initializing } = useAuth();
-  const signedIn = !!session;
+  const { user, initializing } = useAuth();
+  const signedIn = !!user;
   const profile = useProfile();
   const consents = useConsents();
 
@@ -79,8 +83,12 @@ function RootNavigator() {
 
   const onboarded = signedIn && !!profile.data?.onboardingCompletedAt && !!consents.data && hasRequiredConsents(consents.data);
 
+  const entry = !signedIn ? '/welcome' : onboarded ? '/today' : '/consent';
+
   return (
+    <EntryContext.Provider value={entry}>
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.cream } }}>
+      <Stack.Screen name="index" />
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="welcome" />
         <Stack.Screen name="(auth)" />
@@ -90,9 +98,26 @@ function RootNavigator() {
       </Stack.Protected>
       <Stack.Protected guard={onboarded}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="meal/planner" options={modalHeader('จัดแผนอาหาร')} />
+        <Stack.Screen name="food/[id]" options={modalHeader('รายละเอียดเมนู')} />
+        <Stack.Screen name="log/add" options={{ ...modalHeader('บันทึกอาหาร'), presentation: 'modal' }} />
+        <Stack.Screen name="settings/edit" options={modalHeader('แก้ไขข้อมูล')} />
       </Stack.Protected>
     </Stack>
+    </EntryContext.Provider>
   );
+}
+
+function modalHeader(title: string) {
+  return {
+    headerShown: true,
+    title,
+    headerShadowVisible: false,
+    headerStyle: { backgroundColor: colors.cream },
+    headerTintColor: colors.forest,
+    headerTitleStyle: { fontFamily: fonts.semibold },
+    headerBackButtonDisplayMode: 'minimal' as const,
+  };
 }
 
 function NotConfigured({ problems }: { problems: string[] }) {

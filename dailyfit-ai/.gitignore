@@ -47,3 +47,6 @@ yarn-error.*
 supabase/.env*
 !supabase/.env.example
 supabase/.temp/
+
+# design preview build output (scripts/build-preview.mjs)
+preview-dist/

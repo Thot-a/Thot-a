@@ -3,10 +3,11 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { AppState, Platform } from 'react-native';
 
 import { authStorage } from './secureStorage';
+import { DEMO_MODE } from './demo';
 import { envResult } from './env';
 
 /** null when env is missing — the root layout shows a configuration screen instead of crashing. */
-export const supabase: SupabaseClient | null = envResult.ok
+export const supabase: SupabaseClient | null = !DEMO_MODE && envResult.ok
   ? createClient(envResult.env.EXPO_PUBLIC_SUPABASE_URL, envResult.env.EXPO_PUBLIC_SUPABASE_ANON_KEY, {
       auth: {
         storage: authStorage,

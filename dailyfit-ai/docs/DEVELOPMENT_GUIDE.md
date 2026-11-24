@@ -57,14 +57,24 @@ npm run test:functions      # deno test (planner service ด้วย fake repo/
 - `supabase/seed.sql` ใส่ตัวเลข **placeholder** สถานะ `sample` สำหรับ local เท่านั้น และต้องตั้ง `ALLOW_SAMPLE_FOOD=true` ฝั่ง function จึงจะถูกใช้ — UI แสดงแบนเนอร์ "ข้อมูลตัวอย่าง"
 - การนำเข้าข้อมูลจริง: ดู `docs/DATABASE.md` §7
 
-## 7. ตรวจ UI แบบเร็ว (ไม่มี simulator)
+## 7. โหมดตัวอย่าง (Demo mode) และลิงก์พรีวิว
+ใช้ดูดีไซน์และทดลองกดทุกหน้าโดยไม่ต้องมี Supabase / AI / มือถือ
+- เปิดด้วย `EXPO_PUBLIC_DEMO_MODE=true` → services ทุกตัวสลับไปใช้ `src/demo/` (ข้อมูลในหน่วยความจำ, ตัวเลขโภชนาการ placeholder ชุดเดียวกับ `seed.sql`)
+- ใช้ logic จริงของ planner (`@shared/planner`) — ต่างกันแค่แหล่งข้อมูล
+- ทุกหน้าแสดงป้าย "โหมดตัวอย่าง" และ AI Coach แจ้งว่าคำตอบเป็นข้อความสาธิต ไม่ใช่ AI จริง
+- **ห้ามเปิด demo mode ใน build ที่ส่งสโตร์**
+
+สร้างไฟล์ HTML เดียวสำหรับแชร์เป็นลิงก์:
 ```bash
-npm i  # react-native-web ติดตั้งแล้ว
-EXPO_PUBLIC_SUPABASE_URL=… EXPO_PUBLIC_SUPABASE_ANON_KEY=… npx expo export --platform web --output-dir /tmp/web
+EXPO_PUBLIC_DEMO_MODE=true npx expo export --platform web --output-dir /tmp/web
+node scripts/build-preview.mjs /tmp/web preview-dist/index.html
 ```
-แล้วเปิดด้วย browser ขนาด 375×667 — ใช้ตรวจ layout/ฟอนต์ไทยเท่านั้น ไม่แทนการทดสอบบน iOS/Android จริง
+สคริปต์จะฝัง JS, ฟอนต์ และรูปทั้งหมดเป็น data URI (ไม่โหลดอะไรจากภายนอก) และรีเซ็ต path เป็น `/` ก่อนแอปเริ่ม เพื่อให้ทำงานได้เมื่อถูกโฮสต์ใน sub-path หรือ iframe
+หมายเหตุ: `app.json` ปิด `asyncRoutes` ของ expo-router เพื่อให้ได้ bundle เดียว
 
 ## 8. ข้อจำกัดที่รู้แล้ว
 - ยังไม่มี generated DB types (`supabase gen types typescript`) — ทำหลังเชื่อม project จริง
 - Reset password: อีเมลรีเซ็ตส่งได้ แต่หน้าตั้งรหัสใหม่ผ่าน deep link (`dailyfit://`) ยังไม่ได้ทำ
 - Font: import ทั้งแพ็กเกจ Noto Sans Thai (ทุกน้ำหนักถูก bundle) — ลดขนาดภายหลังได้
+- Fallback planner (ไม่ใช้ AI) เลือก 1 เมนูต่อมื้อ ยังไม่จับคู่กับข้าว/เครื่องดื่ม เมื่องบตึงอาจได้มื้อที่เบา
+- รูปอาหาร: ยังไม่มีรูปจริง แสดงภาพประกอบตามหมวด (`FoodImage`); รองรับรูปจาก Supabase Storage bucket `food-images` ผ่าน `food_items.image_path` แล้ว

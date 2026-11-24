@@ -1,5 +1,7 @@
 import type { ActivityLevel, DietaryRestriction, FoodTag, Goal, Sex } from '@shared/constants';
 
+import { demoProfile } from '@/demo/store';
+import { DEMO_MODE } from '@/lib/demo';
 import { toAppError } from '@/lib/errors';
 import { requireSupabase } from '@/lib/supabase';
 
@@ -18,6 +20,7 @@ export interface Profile {
   likedTags: FoodTag[];
   excludedTags: FoodTag[];
   restrictions: DietaryRestriction[];
+  mealReminders: boolean;
 }
 
 async function currentUserId(): Promise<string> {
@@ -27,6 +30,7 @@ async function currentUserId(): Promise<string> {
 }
 
 export async function getMyProfile(): Promise<Profile> {
+  if (DEMO_MODE) return demoProfile.get();
   const sb = requireSupabase();
   const id = await currentUserId();
   const [p, pref] = await Promise.all([
@@ -35,7 +39,7 @@ export async function getMyProfile(): Promise<Profile> {
       .select('id, display_name, birth_year, sex, height_cm, weight_kg, goal, activity_level, daily_budget_thb, onboarding_completed_at')
       .eq('id', id)
       .single(),
-    sb.from('user_preferences').select('meals_per_day, liked_tags, excluded_tags, dietary_restrictions').eq('user_id', id).single(),
+    sb.from('user_preferences').select('meals_per_day, liked_tags, excluded_tags, dietary_restrictions, notification_settings').eq('user_id', id).single(),
   ]);
   if (p.error) throw toAppError(p.error);
   if (pref.error) throw toAppError(pref.error);
@@ -54,6 +58,7 @@ export async function getMyProfile(): Promise<Profile> {
     likedTags: pref.data.liked_tags,
     excludedTags: pref.data.excluded_tags,
     restrictions: pref.data.dietary_restrictions,
+    mealReminders: pref.data.notification_settings?.meal_reminders === true,
   };
 }
 
@@ -70,6 +75,7 @@ export interface ProfileUpdate {
 }
 
 export async function updateProfile(u: ProfileUpdate): Promise<void> {
+  if (DEMO_MODE) return demoProfile.update(u);
   const id = await currentUserId();
   const row: Record<string, unknown> = {};
   if (u.displayName !== undefined) row.display_name = u.displayName;
@@ -90,15 +96,18 @@ export interface PreferencesUpdate {
   likedTags?: FoodTag[];
   excludedTags?: FoodTag[];
   restrictions?: DietaryRestriction[];
+  mealReminders?: boolean;
 }
 
 export async function updatePreferences(u: PreferencesUpdate): Promise<void> {
+  if (DEMO_MODE) return demoProfile.updatePreferences(u);
   const id = await currentUserId();
   const row: Record<string, unknown> = {};
   if (u.mealsPerDay !== undefined) row.meals_per_day = u.mealsPerDay;
   if (u.likedTags !== undefined) row.liked_tags = u.likedTags;
   if (u.excludedTags !== undefined) row.excluded_tags = u.excludedTags;
   if (u.restrictions !== undefined) row.dietary_restrictions = u.restrictions;
+  if (u.mealReminders !== undefined) row.notification_settings = { meal_reminders: u.mealReminders };
   const { error } = await requireSupabase().from('user_preferences').update(row).eq('user_id', id);
   if (error) throw toAppError(error);
 }

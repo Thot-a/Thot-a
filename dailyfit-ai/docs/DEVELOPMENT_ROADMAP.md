@@ -20,15 +20,16 @@
 | ลำดับ | Feature | สถานะ |
 |---|---|---|
 | 1 | Onboarding + consent (ข้ามข้อมูลที่ไม่จำเป็นได้) | ◐ UI + เขียน DB เสร็จ, ยังไม่ทดสอบกับ Supabase จริง/อุปกรณ์จริง |
-| 2 | User Profile (อ่าน/แก้ไข) | ◐ อ่าน + ออกจากระบบ + ลบบัญชี; หน้าแก้ไขยังไม่มี |
+| 2 | User Profile (อ่าน/แก้ไข) | ◐ อ่าน/แก้ไขเป้าหมาย งบ ข้อจำกัด + ลบบัญชี; แก้ข้อมูลร่างกายยังไม่มี |
 | 3 | Food Database: นำเข้าข้อมูล **verified** ชุดแรก ≥ 40 เมนู | ☐ ต้องมีแหล่งข้อมูล + ผู้ตรวจ (backlog 37 เมนูรออยู่) |
-| 4 | Home Dashboard | ◐ แผนวันนี้ + สรุป + empty/error/loading; ยังไม่มีสรุปบันทึกการกิน |
-| 5 | Meal Planner UI (แสดงแผน, เปลี่ยนมื้อ, สร้างใหม่) | ◐ อยู่ในหน้า Home; ยังไม่มีหน้าเลือกงบ/มื้อต่อครั้ง |
-| 6 | Food Diary (CRUD + ประวัติ) | ☐ (DB + RLS + trigger พร้อมแล้ว) |
+| 4 | Home Dashboard | ◐ UI ครบ (แผน, บันทึกแล้ว, ทางลัด, กินแล้ว) ทดสอบในโหมดตัวอย่าง |
+| 5 | Meal Planner UI (เลือกงบ/มื้อ/เป้าหมาย, เปลี่ยนมื้อ) | ◐ UI ครบ ทดสอบในโหมดตัวอย่าง |
+| 6 | Food Diary (CRUD + ประวัติรายวัน) | ◐ UI + service ครบ ทดสอบในโหมดตัวอย่าง; ยังไม่ทดสอบกับ Supabase จริง |
 | 7 | AI Meal Planner (Edge Function, hybrid + fallback) | ◐ โค้ด + unit/service tests ผ่าน, ยังไม่ deploy/ยังไม่เรียก AI จริง |
-| 8 | AI Coach (Edge Function + chat UI) | ☐ |
-| 9 | Progress (สถิติรายสัปดาห์, กราฟ) | ☐ |
-| 10 | Settings (consent, ลบบัญชี, logout) | ☐ |
+| 8 | AI Coach (Edge Function + chat UI) | ◐ chat UI เสร็จ (โหมดตัวอย่างใช้ข้อความสาธิต); Edge Function `ai-coach` ยังไม่สร้าง |
+| 9 | Progress (สถิติรายสัปดาห์, กราฟ) | ◐ UI + logic + tests; ยังไม่ทดสอบกับข้อมูลจริง |
+| 10 | Settings (consent, แจ้งเตือน, สมาชิก, ลบบัญชี, logout) | ◐ UI ครบ; การแจ้งเตือนจริงและการชำระเงินยังไม่ทำ |
+| — | ลิงก์พรีวิวดีไซน์ (demo mode) | ☑ เผยแพร่แล้ว |
 
 Definition of Done ต่อ feature: ดู `CLAUDE.md` §DoD
 

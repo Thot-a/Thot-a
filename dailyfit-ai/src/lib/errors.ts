@@ -89,6 +89,7 @@ export function toAppError(e: unknown): AppError {
       return new AppError('VALIDATION');
     case 'PGRST116':
       return new AppError('NOT_FOUND');
+    case 'NOT_FOUND':
     case 'QUOTA_EXCEEDED':
     case 'INSUFFICIENT_FOOD_DATA':
     case 'AI_UNAVAILABLE':

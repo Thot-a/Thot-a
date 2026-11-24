@@ -26,7 +26,7 @@ describe('client bundle hygiene', () => {
   });
 
   it('only whitelisted EXPO_PUBLIC_ variables are used', () => {
-    const allowed = new Set(['EXPO_PUBLIC_SUPABASE_URL', 'EXPO_PUBLIC_SUPABASE_ANON_KEY']);
+    const allowed = new Set(['EXPO_PUBLIC_SUPABASE_URL', 'EXPO_PUBLIC_SUPABASE_ANON_KEY', 'EXPO_PUBLIC_DEMO_MODE']);
     for (const f of files) {
       for (const m of readFileSync(f, 'utf8').matchAll(/EXPO_PUBLIC_[A-Z0-9_]+/g)) expect(allowed, `${f}: ${m[0]}`).toContain(m[0]);
     }
