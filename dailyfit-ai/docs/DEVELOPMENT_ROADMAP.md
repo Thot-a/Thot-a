@@ -12,19 +12,20 @@
 - [x] DB test harness (PostgreSQL + auth stub) สำหรับ constraint/RLS
 - [x] Design system (tokens, Noto Sans Thai, Button/Card/Input/Screen/States)
 - [x] Supabase client (SecureStore session), env validation
-- [x] Auth: สมัคร / เข้าสู่ระบบ / ลืมรหัสผ่าน / ออกจากระบบ / session routing
+- [x] Auth: สมัคร / เข้าสู่ระบบ / ขอลิงก์รีเซ็ตรหัสผ่าน / ออกจากระบบ / session routing (ยังไม่ได้ทดสอบกับ Supabase จริง)
+- [ ] หน้าตั้งรหัสผ่านใหม่ผ่าน deep link
 - [ ] **ต้องการจากเจ้าของ:** สร้าง Supabase project + ใส่ URL/anon key ใน `.env`
 
 ## Phase 1 — Core MVP (สัปดาห์ที่ 2–5)
 | ลำดับ | Feature | สถานะ |
 |---|---|---|
-| 1 | Onboarding + consent (ข้ามข้อมูลที่ไม่จำเป็นได้) | ◐ เริ่มแล้ว |
-| 2 | User Profile (อ่าน/แก้ไข) | ☐ |
-| 3 | Food Database: นำเข้าข้อมูล **verified** ชุดแรก ≥ 40 เมนู | ☐ ต้องมีผู้ตรวจ |
-| 4 | Home Dashboard | ☐ |
-| 5 | Meal Planner UI (แสดงแผน, เปลี่ยนมื้อ, บันทึก) | ☐ |
-| 6 | Food Diary (CRUD + ประวัติ) | ☐ |
-| 7 | AI Meal Planner (Edge Function, hybrid + fallback) | ◐ logic + tests เสร็จ, ยังไม่ deploy |
+| 1 | Onboarding + consent (ข้ามข้อมูลที่ไม่จำเป็นได้) | ◐ UI + เขียน DB เสร็จ, ยังไม่ทดสอบกับ Supabase จริง/อุปกรณ์จริง |
+| 2 | User Profile (อ่าน/แก้ไข) | ◐ อ่าน + ออกจากระบบ + ลบบัญชี; หน้าแก้ไขยังไม่มี |
+| 3 | Food Database: นำเข้าข้อมูล **verified** ชุดแรก ≥ 40 เมนู | ☐ ต้องมีแหล่งข้อมูล + ผู้ตรวจ (backlog 37 เมนูรออยู่) |
+| 4 | Home Dashboard | ◐ แผนวันนี้ + สรุป + empty/error/loading; ยังไม่มีสรุปบันทึกการกิน |
+| 5 | Meal Planner UI (แสดงแผน, เปลี่ยนมื้อ, สร้างใหม่) | ◐ อยู่ในหน้า Home; ยังไม่มีหน้าเลือกงบ/มื้อต่อครั้ง |
+| 6 | Food Diary (CRUD + ประวัติ) | ☐ (DB + RLS + trigger พร้อมแล้ว) |
+| 7 | AI Meal Planner (Edge Function, hybrid + fallback) | ◐ โค้ด + unit/service tests ผ่าน, ยังไม่ deploy/ยังไม่เรียก AI จริง |
 | 8 | AI Coach (Edge Function + chat UI) | ☐ |
 | 9 | Progress (สถิติรายสัปดาห์, กราฟ) | ☐ |
 | 10 | Settings (consent, ลบบัญชี, logout) | ☐ |

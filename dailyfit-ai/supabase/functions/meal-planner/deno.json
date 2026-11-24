@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "zod": "npm:zod@4.6.7",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2",
+    "@anthropic-ai/sdk": "npm:@anthropic-ai/sdk@1.13.0"
+  },
+  "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": true }
+}

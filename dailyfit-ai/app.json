@@ -1,22 +1,24 @@
 {
   "expo": {
-    "name": "dailyfit-ai",
+    "name": "DailyFit AI",
     "slug": "dailyfit-ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "ai.dailyfit.app"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F5F4EC",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "ai.dailyfit.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -27,6 +29,15 @@
       "expo-splash-screen",
       "expo-secure-store",
       "expo-localization"
-    ]
+    ],
+    "scheme": "dailyfit",
+    "experiments": {
+      "typedRoutes": true
+    },
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F5F4EC"
+    }
   }
 }

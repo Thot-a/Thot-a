@@ -201,6 +201,25 @@ begin
   exception when check_violation then null; end;
 end $$;
 
+-- 11b. swap_meal_plan_item recomputes snapshot + totals; other users' items are rejected
+do $$
+declare
+  v_item uuid;
+  v_plan uuid;
+  v_tofu uuid := (select id from public.food_items where slug = 'gaeng-jued-tao-hoo');
+begin
+  select i.id, i.meal_plan_id into v_item, v_plan
+    from public.meal_plan_items i join public.meal_plans p on p.id = i.meal_plan_id
+   where p.status = 'active' and i.meal_type = 'lunch';
+  perform public.swap_meal_plan_item('00000000-0000-0000-0000-00000000000a', v_item, v_tofu, 'เบากว่า', true);
+  perform pg_temp.assert((select kcal from public.meal_plan_items where id = v_item) = 160.0, 'swapped item snapshot');
+  perform pg_temp.assert((select total_kcal from public.meal_plans where id = v_plan) = 310.0, 'plan totals recomputed (150 + 160)');
+  begin
+    perform public.swap_meal_plan_item('00000000-0000-0000-0000-00000000000b', v_item, v_tofu, 'x', true);
+    raise exception 'ASSERTION FAILED: B must not swap A item';
+  exception when no_data_found then null; end;
+end $$;
+
 -- 12. Quota ------------------------------------------------------------------------------------------
 select pg_temp.assert(public.consume_ai_quota('00000000-0000-0000-0000-00000000000a', 'coach', 2) = 1, 'quota 1/2');
 select pg_temp.assert(public.consume_ai_quota('00000000-0000-0000-0000-00000000000a', 'coach', 2) = 2, 'quota 2/2');

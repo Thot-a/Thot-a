@@ -133,6 +133,8 @@ Index `(user_id, log_date desc)`
 | `food_logs_compute_snapshot()` | trigger | คำนวณ snapshot จาก `food_items` |
 | `effective_plan(uid)` | SQL, security definer | `premium` เฉพาะ status active/trialing และยังไม่หมดอายุ |
 | `save_meal_plan(user_id, plan jsonb)` | plpgsql, **service_role เท่านั้น** | archive แผนเดิมของวัน + insert แผนใหม่ + snapshot แบบ atomic |
+| `swap_meal_plan_item(user_id, item_id, food_id, reason, allow_sample)` | plpgsql, service_role | เปลี่ยนเมนูหนึ่งมื้อ + คำนวณ snapshot/ยอดรวมใหม่ |
+| `my_plan()` | SQL, security definer | ผู้ใช้อ่านสถานะสมาชิกของตัวเอง |
 | `consume_ai_quota(user_id, feature, limit)` | plpgsql, service_role | นับ request แบบ atomic, คืน false ถ้าเกิน |
 | `record_ai_usage(user_id, feature, in, out, cost)` | plpgsql, service_role | บันทึก token/ต้นทุน |
 
@@ -167,7 +169,8 @@ Index `(user_id, log_date desc)`
 | `20261124000001_core_schema.sql` | enums, tables, indexes, constraints, triggers |
 | `20261124000002_rls_policies.sql` | เปิด RLS + policies + grants |
 | `20261124000003_functions.sql` | RPC: effective_plan, save_meal_plan, quota |
-| `20261124000004_food_catalog.sql` | food_sources อ้างอิง + รายการอาหาร (สถานะ `unverified`, ไม่มีตัวเลขโภชนาการ) |
+| `20261124000004_food_catalog.sql` | food_sources อ้างอิง + รายการอาหาร 37 เมนู (สถานะ `unverified`, ไม่มีตัวเลขโภชนาการ) |
+| `20261124000005_swap_meal_item.sql` | RPC `swap_meal_plan_item` (service_role) |
 | `supabase/seed.sql` | **local เท่านั้น** — ตัวเลขตัวอย่าง (`sample`) เพื่อพัฒนา UI |
 
 การทดสอบ: `npm run test:db` รัน migrations + `supabase/tests/*.sql` บน PostgreSQL (มี stub ของ `auth` schema) เพื่อตรวจ constraint และ RLS

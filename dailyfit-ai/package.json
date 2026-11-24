@@ -1,12 +1,13 @@
 {
   "name": "dailyfit-ai",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "dependencies": {
     "@expo-google-fonts/noto-sans-thai": "^0.4.2",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@supabase/supabase-js": "^2.119.2",
+    "@tanstack/react-query": "^5.108.4",
     "expo": "~58.0.26",
     "expo-constants": "~58.0.16",
     "expo-font": "~58.0.12",
@@ -17,15 +18,17 @@
     "expo-splash-screen": "~58.0.14",
     "expo-status-bar": "~58.0.5",
     "react": "19.3.0",
-    "react-dom": "^19.3.0",
+    "react-dom": "19.3.0",
     "react-native": "0.88.1",
     "react-native-safe-area-context": "~5.11.1",
     "react-native-screens": "~4.30.1",
     "react-native-url-polyfill": "^4.0.0",
+    "react-native-web": "^0.21.4",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^1.13.0",
+    "@types/node": "^22.20.5",
     "@types/react": "~19.3.0",
     "eslint": "^9.39.5",
     "eslint-config-expo": "^58.0.4",
@@ -36,7 +39,18 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "lint": "expo lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:db": "bash scripts/test-db.sh",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "check:functions": "cd supabase/functions && npx --yes deno check meal-planner/index.ts delete-account/index.ts",
+    "test:functions": "cd supabase/functions && npx --yes deno test --allow-env _shared/"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "react-dom": "19.3.0"
+  }
 }
