@@ -29,7 +29,7 @@ export default function ProfileScreen() {
   const err = signOutM.error ?? deleteM.error ?? recordConsent.error ?? updateProfile.error;
 
   return (
-    <Screen edges={['top']}>
+    <Screen edges={['bottom']}>
       <View style={styles.head}>
         <View style={styles.avatar}>
           <AppText variant="title" color={colors.white}>

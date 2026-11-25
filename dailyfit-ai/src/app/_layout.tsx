@@ -100,7 +100,9 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="meal/planner" options={modalHeader('จัดแผนอาหาร')} />
         <Stack.Screen name="food/[id]" options={modalHeader('รายละเอียดเมนู')} />
+        <Stack.Screen name="foods/index" options={modalHeader('คลังเมนู')} />
         <Stack.Screen name="log/add" options={{ ...modalHeader('บันทึกอาหาร'), presentation: 'modal' }} />
+        <Stack.Screen name="profile" options={modalHeader('โปรไฟล์และการตั้งค่า')} />
         <Stack.Screen name="settings/edit" options={modalHeader('แก้ไขข้อมูล')} />
       </Stack.Protected>
     </Stack>

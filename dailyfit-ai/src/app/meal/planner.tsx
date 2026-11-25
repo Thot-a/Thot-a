@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -11,7 +12,7 @@ import { useGeneratePlan, useSwapMeal } from '@/hooks/useMealPlan';
 import { useProfile } from '@/hooks/useProfile';
 import { toAppError } from '@/lib/errors';
 import type { SwapReason } from '@/services/mealPlans';
-import { bangkokToday } from '@/utils/date';
+import { bangkokToday, formatThaiDate } from '@/utils/date';
 
 const BUDGETS = [100, 150, 200, 300];
 const AVOID: FoodTag[] = ['pork', 'beef', 'seafood', 'spicy', 'fried', 'dairy'];
@@ -23,7 +24,8 @@ const SWAP_OPTIONS: { reason: SwapReason; label: string }[] = [
 ];
 
 export default function Planner() {
-  const today = bangkokToday();
+  const params = useLocalSearchParams<{ date?: string }>();
+  const today = params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date) ? params.date : bangkokToday();
   const { data: profile } = useProfile();
   const [budget, setBudget] = useState(profile?.dailyBudgetThb ?? 150);
   const [custom, setCustom] = useState('');
@@ -50,7 +52,7 @@ export default function Planner() {
 
   return (
     <Screen edges={['bottom']}>
-      <AppText color={colors.muted}>ตั้งเงื่อนไขสำหรับวันนี้ แล้วให้เราเลือกเมนูให้ แผนใหม่จะแทนแผนเดิมของวันนี้</AppText>
+      <AppText color={colors.muted}>ตั้งเงื่อนไข แล้วให้เราเลือกเมนูให้ · แผนใหม่จะแทนแผนเดิมของ{today === bangkokToday() ? 'วันนี้' : formatThaiDate(today)}</AppText>
 
       <AppText variant="label">งบประมาณวันนี้</AppText>
       <View style={styles.chips}>
@@ -86,7 +88,7 @@ export default function Planner() {
 
       {plan ? (
         <>
-          <Banner tone="success" message={`บันทึกเป็นแผนของวันนี้แล้ว · ใช้สิทธิ์จัดเมนู ${generate.data?.quota.used}/${generate.data?.quota.limit} ครั้งวันนี้`} />
+          <Banner tone="success" message={`บันทึกเป็นแผนของ${today === bangkokToday() ? 'วันนี้' : formatThaiDate(today)}แล้ว · ใช้สิทธิ์จัดเมนู ${generate.data?.quota.used}/${generate.data?.quota.limit} ครั้งวันนี้`} />
           <Card style={styles.summary}>
             <AppText variant="heading" color={colors.white}>
               ~{Math.round(plan.total_kcal)} kcal · โปรตีน ~{Math.round(plan.total_protein_g)} g

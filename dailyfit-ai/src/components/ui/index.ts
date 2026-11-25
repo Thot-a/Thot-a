@@ -11,3 +11,4 @@ export * from './TextField';
 export * from './SectionHeader';
 export * from './Stepper';
 export * from './Sheet';
+export * from './Pill';
